@@ -21,6 +21,7 @@ module Foreign.JNI.Unsafe.Internal
     withJVM
   , newJVM
   , destroyJVM
+  , getJNIEnv
   , startFinalizerThread
   , stopFinalizerThread
     -- ** Class loading
@@ -35,6 +36,7 @@ module Foreign.JNI.Unsafe.Internal
   , JVMException(..)
   , throw
   , throwNew
+  , throwIfException
     -- ** Query functions
   , findClass
   , getFieldID
@@ -116,8 +118,10 @@ module Foreign.JNI.Unsafe.Internal
   , callStaticDoubleMethod
   , callStaticFloatMethod
     -- ** Object construction
+  , newObject_
   , newObject
   , newString
+  , newStringUTF
   , newObjectArray
   , newBooleanArray
   , newByteArray
@@ -194,6 +198,7 @@ import Data.Word
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import Foreign.C (CChar)
+import Foreign.C.String (CString)
 import Foreign.ForeignPtr
   ( finalizeForeignPtr
   , newForeignPtr_
@@ -502,6 +507,16 @@ findClass (coerce -> name) = withJNIEnv $ \env ->
     JNI.withString name $ \namep ->
     objectFromPtr =<<
     [CU.exp| jclass { (*$(JNIEnv *env))->FindClass($(JNIEnv *env), $(char *namep)) } |]
+
+newObject_ :: JClass -> JMethodID -> [JValue] -> IO JObject
+newObject_ cls constr args = throwIfJNull cls $ withJNIEnv $ \env ->
+    throwIfException env $
+    withJValues args $ \cargs -> do
+      objectFromPtr =<< [CU.exp| jobject {
+        (*$(JNIEnv *env))->NewObjectA($(JNIEnv *env),
+                                      $fptr-ptr:(jclass cls),
+                                      $(jmethodID constr),
+                                      $(jvalue *cargs)) } |]
 
 newObject :: JClass -> MethodSignature -> [JValue] -> IO JObject
 newObject cls (coerce -> sig) args = throwIfJNull cls $ withJNIEnv $ \env ->
@@ -850,6 +865,14 @@ newString ptr len = withJNIEnv $ \env ->
       (*$(JNIEnv *env))->NewString($(JNIEnv *env),
                                    $(jchar *ptr),
                                    $(jsize len)) } |]
+
+newStringUTF :: CString -> IO JString
+newStringUTF ptr = withJNIEnv $ \env ->
+    throwIfException env $
+    objectFromPtr =<<
+    [CU.exp| jstring {
+      (*$(JNIEnv *env))->NewStringUTF($(JNIEnv *env),
+                                      $(char *ptr)) } |]
 
 getArrayLength :: Coercible o (JArray a) => o -> IO Int32
 getArrayLength (coerce -> upcast -> array) = throwIfJNull array $

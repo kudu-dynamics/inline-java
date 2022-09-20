@@ -1,0 +1,107 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           jni
+version:        0.1.0
+synopsis:       Call JNI from Haskell
+description:    Please see the README.
+category:       Bindings
+author:         Tweag
+maintainer:     Tweag
+copyright:      Tweag
+license:        BSD-2-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+library
+  exposed-modules:
+      Foreign.JNI
+      Foreign.JNI.Internal
+      Foreign.JNI.String
+      Foreign.JNI.Types
+      Foreign.JNI.Unsafe
+      Foreign.JNI.Unsafe.Internal
+      Foreign.JNI.Unsafe.Internal.Introspection
+  other-modules:
+      Foreign.JNI.Internal.BackgroundWorker
+      Foreign.JNI.Internal.RWLock
+      Foreign.JNI.NativeMethod
+      Paths_jni
+  autogen-modules:
+      Paths_jni
+  hs-source-dirs:
+      src/common
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -j4 -O2
+  include-dirs:
+      /usr/lib/jvm/java-11-openjdk-amd64/include
+      /usr/lib/jvm/java-11-openjdk/include
+      /usr/lib/jvm/java-11-openjdk/include/linux
+  extra-libraries:
+      jvm
+  build-depends:
+      async
+    , base
+    , bytestring
+    , choice
+    , constraints
+    , containers
+    , deepseq
+    , directory
+    , errors
+    , extra
+    , inline-c
+    , lens
+    , mtl
+    , newtype
+    , pretty-simple
+    , singletons-base
+    , stm
+    , template-haskell >=2.18.0.0
+    , text
+    , transformers
+    , unordered-containers
+  default-language: Haskell2010
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Foreign.JNISpec
+      Spec
+      Paths_jni
+  autogen-modules:
+      Paths_jni
+  hs-source-dirs:
+      tests
+  ghc-options: -threaded -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -j4 -O2
+  build-depends:
+      async
+    , base
+    , bytestring
+    , choice
+    , constraints
+    , containers
+    , deepseq
+    , directory
+    , errors
+    , extra
+    , hspec
+    , inline-c
+    , jni
+    , lens
+    , mtl
+    , newtype
+    , pretty-simple
+    , singletons-base
+    , stm
+    , template-haskell >=2.18.0.0
+    , text
+    , transformers
+    , unordered-containers
+  default-language: Haskell2010

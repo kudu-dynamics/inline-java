@@ -75,12 +75,14 @@ module Language.Java.Unsafe
   , getClass
   , setGetClassFunction
   , new
+  , newJ
   , newArray
   , toArray
   , call
   , callStatic
   , getStaticField
   , VariadicIO
+  , VariadicIO_ (apply, sings)
   -- * Reference management
   , push
   , pushWithSizeHint
@@ -104,6 +106,7 @@ module Language.Java.Unsafe
   , W8Bool(..)
   -- * Re-exports
   , sing
+  , callToJValue
   ) where
 
 import Control.Distributed.Closure.TH

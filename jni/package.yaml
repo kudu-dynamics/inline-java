@@ -1,0 +1,81 @@
+name:                jni
+version:             0.1.0
+license:             BSD-2-Clause
+author:
+  - Tweag
+maintainer:
+  - Tweag
+copyright:           "Tweag"
+synopsis:            Call JNI from Haskell
+category:            Bindings
+description:         Please see the README.
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+dependencies:
+  - async
+  - base
+  - bytestring
+  - choice
+  - constraints
+  - containers
+  - deepseq
+  - directory
+  - errors
+  - extra
+  - inline-c
+  - lens
+  - mtl
+  - newtype
+  - pretty-simple
+  - singletons-base
+  - stm
+  - template-haskell >= 2.18.0.0
+  - text
+  - transformers
+  - unordered-containers
+
+library:
+  ghc-options:
+  - -Wall
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  - -j4
+  - -O2
+  extra-libraries: jvm
+  source-dirs:
+    - src/common
+  include-dirs:
+    - /usr/lib/jvm/java-11-openjdk-amd64/include
+    - /usr/lib/jvm/java-11-openjdk/include
+    - /usr/lib/jvm/java-11-openjdk/include/linux
+  exposed-modules:
+  - Foreign.JNI
+  - Foreign.JNI.Internal
+  - Foreign.JNI.String
+  - Foreign.JNI.Types
+  - Foreign.JNI.Unsafe
+  - Foreign.JNI.Unsafe.Internal
+  - Foreign.JNI.Unsafe.Internal.Introspection
+
+tests:
+  spec:
+    main: Main.hs
+    source-dirs:
+      - tests
+    dependencies:
+      - hspec
+      - jni
+    ghc-options:
+    - -threaded
+    - -Wall
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
+    - -j4
+    - -O2

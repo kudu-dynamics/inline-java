@@ -1,0 +1,84 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.36.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           jvm
+version:        0.1.0
+synopsis:       Call JVM from Haskell
+description:    Please see the README.
+category:       Bindings
+author:         Tweag
+maintainer:     Tweag
+copyright:      Tweag
+license:        BSD-2-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+library
+  exposed-modules:
+      Language.Java
+      Language.Java.Unsafe
+      Language.Java.Internal
+  other-modules:
+      Paths_jvm
+  autogen-modules:
+      Paths_jvm
+  hs-source-dirs:
+      src/common
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -j4 -O2
+  include-dirs:
+      /usr/lib/jvm/java-11-openjdk-amd64/include
+      /usr/lib/jvm/java-11-openjdk/include
+      /usr/lib/jvm/java-11-openjdk/include/linux
+  extra-libraries:
+      jvm
+  build-depends:
+      base
+    , bytestring
+    , choice
+    , constraints
+    , distributed-closure
+    , exceptions
+    , jni
+    , linear-base
+    , singletons
+    , template-haskell
+    , text
+    , vector
+  default-language: Haskell2010
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Language.JavaSpec
+      Spec
+      Paths_jvm
+  autogen-modules:
+      Paths_jvm
+  hs-source-dirs:
+      tests
+  ghc-options: -threaded -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -j4 -O2
+  build-depends:
+      QuickCheck
+    , base
+    , bytestring
+    , choice
+    , constraints
+    , distributed-closure
+    , exceptions
+    , hspec
+    , jni
+    , jvm
+    , linear-base
+    , quickcheck-text
+    , singletons
+    , template-haskell
+    , text
+    , vector
+  default-language: Haskell2010

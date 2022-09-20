@@ -1,5 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -94,6 +97,7 @@ import qualified Foreign.JNI.String as JNI
 import Foreign.Marshal.Alloc (allocaBytesAligned)
 import Foreign.Ptr
 import Foreign.Storable (Storable(..))
+import GHC.Generics (Generic)
 import GHC.TypeLits (KnownSymbol, Symbol, symbolVal)
 import Language.C.Types (TypeSpecifier(TypeName))
 import Language.C.Inline.Context (Context(..), fptrCtx)
@@ -102,19 +106,24 @@ import System.IO.Unsafe (unsafePerformIO)
 
 -- | A JVM instance.
 newtype JVM = JVM_ (Ptr JVM)
-  deriving (Eq, Show, Storable, NFData)
+  deriving newtype (Storable, NFData)
+  deriving (Eq, Show, Generic)
+
 
 -- | The thread-local JNI context. Do not share this object between threads.
 newtype JNIEnv = JNIEnv_ (Ptr JNIEnv)
-  deriving (Eq, Show, Storable, NFData)
+  deriving newtype (Storable, NFData)
+  deriving (Eq, Show, Generic)
 
 -- | A thread-local reference to a field of an object.
 newtype JFieldID = JFieldID_ (Ptr JFieldID)
-  deriving (Eq, Show, Storable, NFData)
+  deriving newtype (Storable, NFData)
+  deriving (Eq, Show, Generic)
 
 -- | A thread-local reference to a method of an object.
 newtype JMethodID = JMethodID_ (Ptr JMethodID)
-  deriving (Eq, Show, Storable, NFData)
+  deriving newtype (Storable, NFData)
+  deriving (Eq, Show, Generic)
 
 -- | Not part of the JNI. The kind of 'J' type indices. Useful to reflect the
 -- object's class at the type-level.
@@ -196,7 +205,7 @@ type a <> g = 'Generic a g
 
 -- | Type indexed Java Objects.
 newtype J (a :: JType) = J (ForeignPtr (J a))
-  deriving (Eq, Show)
+  deriving (Eq, Ord, Show)
 
 type role J representational
 
