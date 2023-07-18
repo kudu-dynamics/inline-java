@@ -1,3 +1,7 @@
+# This fork
+
+This fork modifies `jni` and `jvm` to be buildable with `stack` or `cabal`.
+
 # inline-java: Call any JVM function from Haskell
 
 [![Build](https://github.com/tweag/inline-java/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/tweag/inline-java/actions/workflows/build.yml)
