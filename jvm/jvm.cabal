@@ -31,12 +31,6 @@ library
   hs-source-dirs:
       src/common
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -j4 -O2
-  include-dirs:
-      /usr/lib/jvm/java-11-openjdk-amd64/include
-      /usr/lib/jvm/java-11-openjdk/include
-      /usr/lib/jvm/java-11-openjdk/include/linux
-  extra-libraries:
-      jvm
   build-depends:
       base
     , bytestring

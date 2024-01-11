@@ -1,6 +1,10 @@
 # This fork
 
-This fork modifies `jni` and `jvm` to be buildable with `stack` or `cabal`.
+This fork modifies `jni` and `jvm` to be buildable with `stack` or `cabal`. When
+compiling the `jni` package (either directly or through a dependency), ensure
+that either a suitable JDK is installed and its `bin` directory is accessible
+from your `PATH`, or explicitly set the `JAVA_HOME` environment variable to
+point to a different JDK.
 
 # inline-java: Call any JVM function from Haskell
 

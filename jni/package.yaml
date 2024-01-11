@@ -10,6 +10,29 @@ synopsis:            Call JNI from Haskell
 category:            Bindings
 description:         Please see the README.
 
+flags:
+  Cabal-syntax:
+    description: Use the Cabal-syntax package for Cabal >= 3.8
+    default: True
+
+build-type: Custom
+custom-setup:
+  dependencies:
+    - base
+    - directory
+    - filepath >= 1.4.2.2 && < 1.6
+    - process
+  when:
+    - condition: flag(Cabal-syntax)
+      then:
+        dependencies:
+          - Cabal >= 3.8
+          - Cabal-syntax >= 3.8
+      else:
+        dependencies:
+          - Cabal < 3.7
+          - Cabal-syntax < 3.7
+
 extra-source-files:
 - README.md
 - CHANGELOG.md
@@ -50,10 +73,6 @@ library:
   extra-libraries: jvm
   source-dirs:
     - src/common
-  include-dirs:
-    - /usr/lib/jvm/java-11-openjdk-amd64/include
-    - /usr/lib/jvm/java-11-openjdk/include
-    - /usr/lib/jvm/java-11-openjdk/include/linux
   exposed-modules:
   - Foreign.JNI
   - Foreign.JNI.Internal

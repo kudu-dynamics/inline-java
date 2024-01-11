@@ -37,13 +37,8 @@ library:
   - -Wredundant-constraints
   - -j4
   - -O2
-  extra-libraries: jvm
   source-dirs:
     - src/common
-  include-dirs:
-    - /usr/lib/jvm/java-11-openjdk-amd64/include
-    - /usr/lib/jvm/java-11-openjdk/include
-    - /usr/lib/jvm/java-11-openjdk/include/linux
   exposed-modules:
   - Language.Java
   - Language.Java.Unsafe
