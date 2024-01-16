@@ -38,6 +38,7 @@ dependencies:
   - unordered-containers
 
 library:
+  build-tool-depends: cpphs:cpphs
   ghc-options:
   - -Wall
   - -Wcompat

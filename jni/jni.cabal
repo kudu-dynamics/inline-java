@@ -44,6 +44,8 @@ library
       /usr/lib/jvm/java-11-openjdk/include/linux
   extra-libraries:
       jvm
+  build-tools:
+      cpphs
   build-depends:
       async
     , base

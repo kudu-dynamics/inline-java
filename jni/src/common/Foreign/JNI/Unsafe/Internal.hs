@@ -11,9 +11,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 {-# OPTIONS_GHC -fno-warn-name-shadowing #-}
-
--- XXX This file uses #### for concatenating tokens with a preprocessor in
--- a portable way. See note cat-tokens in jni/BUILD.bazel.
+{-# OPTIONS_GHC "-pgmPcpphs --cpp --hashes" #-}
 
 module Foreign.JNI.Unsafe.Internal
   ( -- * JNI functions
@@ -562,11 +560,11 @@ getStaticFieldID cls fieldname (coerce -> sig) = throwIfJNull cls $
                                           $(char *sigp)) } |]
 
 #define GET_FIELD(name, hs_rettype, c_rettype) \
-get####name####Field :: Coercible o (J a) => o -> JFieldID -> IO hs_rettype; \
-get####name####Field (coerce -> upcast -> obj) field = withJNIEnv $ \env -> \
+get##name##Field :: Coercible o (J a) => o -> JFieldID -> IO hs_rettype; \
+get##name##Field (coerce -> upcast -> obj) field = withJNIEnv $ \env -> \
     throwIfException env $ \
     [CU.exp| c_rettype { \
-      (*$(JNIEnv *env))->Get####name####Field($(JNIEnv *env), \
+      (*$(JNIEnv *env))->Get##name##Field($(JNIEnv *env), \
                                               $fptr-ptr:(jobject obj), \
                                               $(jfieldID field)) } |]
 
@@ -584,12 +582,12 @@ GET_FIELD(Float, Float, jfloat)
 GET_FIELD(Double, Double, jdouble)
 
 #define GET_STATIC_FIELD(name, hs_rettype, c_rettype) \
-getStatic####name####Field :: JClass -> JFieldID -> IO hs_rettype; \
-getStatic####name####Field klass field = throwIfJNull klass $ \
+getStatic##name##Field :: JClass -> JFieldID -> IO hs_rettype; \
+getStatic##name##Field klass field = throwIfJNull klass $ \
     withJNIEnv $ \env -> \
     throwIfException env $ \
     [CU.exp| c_rettype { \
-      (*$(JNIEnv *env))->GetStatic####name####Field($(JNIEnv *env), \
+      (*$(JNIEnv *env))->GetStatic##name##Field($(JNIEnv *env), \
                                                     $fptr-ptr:(jclass klass), \
                                                     $(jfieldID field)) } |]
 
@@ -607,12 +605,12 @@ GET_STATIC_FIELD(Float, Float, jfloat)
 GET_STATIC_FIELD(Double, Double, jdouble)
 
 #define SET_FIELD(name, hs_fieldtype, c_fieldtype) \
-set####name####Field :: Coercible o (J a) => o -> JFieldID -> hs_fieldtype -> IO (); \
-set####name####Field (coerce -> upcast -> obj) field x = \
+set##name##Field :: Coercible o (J a) => o -> JFieldID -> hs_fieldtype -> IO (); \
+set##name##Field (coerce -> upcast -> obj) field x = \
     withJNIEnv $ \env -> \
     throwIfException env $ \
     [CU.block| void { \
-      (*$(JNIEnv *env))->Set####name####Field($(JNIEnv *env), \
+      (*$(JNIEnv *env))->Set##name##Field($(JNIEnv *env), \
                                               $fptr-ptr:(jobject obj), \
                                               $(jfieldID field), \
                                               $(c_fieldtype x)); } |]
@@ -631,12 +629,12 @@ SET_FIELD(Float, Float, jfloat)
 SET_FIELD(Double, Double, jdouble)
 
 #define SET_STATIC_FIELD(name, hs_fieldtype, c_fieldtype) \
-setStatic####name####Field :: JClass -> JFieldID -> hs_fieldtype -> IO (); \
-setStatic####name####Field klass field x = throwIfJNull klass $ \
+setStatic##name##Field :: JClass -> JFieldID -> hs_fieldtype -> IO (); \
+setStatic##name##Field klass field x = throwIfJNull klass $ \
     withJNIEnv $ \env -> \
     throwIfException env $ \
     [CU.block| void { \
-      (*$(JNIEnv *env))->SetStatic####name####Field($(JNIEnv *env), \
+      (*$(JNIEnv *env))->SetStatic##name##Field($(JNIEnv *env), \
                                                     $fptr-ptr:(jclass klass), \
                                                     $(jfieldID field), \
                                                     $(c_fieldtype x)); } |]
@@ -773,12 +771,12 @@ popLocalFrame (coerce -> upcast -> obj) = withJNIEnv $ \env ->
 -- modern CPP features.
 
 #define CALL_METHOD(name, hs_rettype, c_rettype) \
-call####name####Method :: Coercible o (J a) => o -> JMethodID -> [JValue] -> IO hs_rettype; \
-call####name####Method (coerce -> upcast -> obj) method args = withJNIEnv $ \env -> \
+call##name##Method :: Coercible o (J a) => o -> JMethodID -> [JValue] -> IO hs_rettype; \
+call##name##Method (coerce -> upcast -> obj) method args = withJNIEnv $ \env -> \
     throwIfException env $ \
     withJValues args $ \cargs -> \
     [C.exp| c_rettype { \
-      (*$(JNIEnv *env))->Call####name####MethodA($(JNIEnv *env), \
+      (*$(JNIEnv *env))->Call##name##MethodA($(JNIEnv *env), \
                                                  $fptr-ptr:(jobject obj), \
                                                  $(jmethodID method), \
                                                  $(jvalue *cargs)) } |]
@@ -801,13 +799,13 @@ CALL_METHOD(Float, Float, jfloat)
 CALL_METHOD(Double, Double, jdouble)
 
 #define CALL_STATIC_METHOD(name, hs_rettype, c_rettype) \
-callStatic####name####Method :: JClass -> JMethodID -> [JValue] -> IO hs_rettype; \
-callStatic####name####Method cls method args = throwIfJNull cls $ \
+callStatic##name##Method :: JClass -> JMethodID -> [JValue] -> IO hs_rettype; \
+callStatic##name##Method cls method args = throwIfJNull cls $ \
     withJNIEnv $ \env -> \
     throwIfException env $ \
     withJValues args $ \cargs -> \
     [C.exp| c_rettype { \
-      (*$(JNIEnv *env))->CallStatic####name####MethodA($(JNIEnv *env), \
+      (*$(JNIEnv *env))->CallStatic##name##MethodA($(JNIEnv *env), \
                                                        $fptr-ptr:(jclass cls), \
                                                        $(jmethodID method), \
                                                        $(jvalue *cargs)) } |]
@@ -840,12 +838,12 @@ newObjectArray sz cls = throwIfJNull cls $ withJNIEnv $ \env ->
                                         NULL) } |]
 
 #define NEW_ARRAY(name, c_rettype) \
-new####name####Array :: Int32 -> IO J####name####Array; \
-new####name####Array sz = withJNIEnv $ \env -> \
+new##name##Array :: Int32 -> IO J##name##Array; \
+new##name##Array sz = withJNIEnv $ \env -> \
     throwIfException env $ \
     objectFromPtr =<< \
-    [CU.exp| c_rettype####Array { \
-      (*$(JNIEnv *env))->New####name####Array($(JNIEnv *env), \
+    [CU.exp| c_rettype##Array { \
+      (*$(JNIEnv *env))->New##name##Array($(JNIEnv *env), \
                                               $(jsize sz)) } |]
 
 NEW_ARRAY(Boolean, jboolean)
@@ -888,12 +886,12 @@ getStringLength jstr = throwIfJNull jstr $ withJNIEnv $ \env ->
                                          $fptr-ptr:(jstring jstr)) } |]
 
 #define GET_ARRAY_ELEMENTS(name, hs_rettype, c_rettype) \
-get####name####ArrayElements :: J####name####Array -> IO (Ptr hs_rettype); \
-get####name####ArrayElements (upcast -> array) = throwIfJNull array $ \
+get##name##ArrayElements :: J##name##Array -> IO (Ptr hs_rettype); \
+get##name##ArrayElements (upcast -> array) = throwIfJNull array $ \
     withJNIEnv $ \env -> \
     throwIfNull ArrayCopyFailed $ \
     [CU.exp| c_rettype* { \
-      (*$(JNIEnv *env))->Get####name####ArrayElements($(JNIEnv *env), \
+      (*$(JNIEnv *env))->Get##name##ArrayElements($(JNIEnv *env), \
                                                       $fptr-ptr:(jobject array), \
                                                       NULL) } |]
 
@@ -915,13 +913,13 @@ getStringChars jstr = throwIfJNull jstr $ withJNIEnv $ \env ->
                                         NULL) } |]
 
 #define GET_ARRAY_REGION(name, hs_argtype, c_argtype) \
-get####name####ArrayRegion :: J####name####Array -> Int32 -> Int32 -> Ptr hs_argtype -> IO (); \
-get####name####ArrayRegion array start len buf = throwIfJNull array $ \
+get##name##ArrayRegion :: J##name##Array -> Int32 -> Int32 -> Ptr hs_argtype -> IO (); \
+get##name##ArrayRegion array start len buf = throwIfJNull array $ \
     withJNIEnv $ \env -> \
     throwIfException env $ \
     [CU.exp| void { \
-      (*$(JNIEnv *env))->Get####name####ArrayRegion($(JNIEnv *env), \
-                                                    $fptr-ptr:(c_argtype####Array array), \
+      (*$(JNIEnv *env))->Get##name##ArrayRegion($(JNIEnv *env), \
+                                                    $fptr-ptr:(c_argtype##Array array), \
                                                     $(jsize start), \
                                                     $(jsize len), \
                                                     $(c_argtype *buf)) } |]
@@ -936,13 +934,13 @@ GET_ARRAY_REGION(Float, Float, jfloat)
 GET_ARRAY_REGION(Double, Double, jdouble)
 
 #define SET_ARRAY_REGION(name, hs_argtype, c_argtype) \
-set####name####ArrayRegion :: J####name####Array -> Int32 -> Int32 -> Ptr hs_argtype -> IO (); \
-set####name####ArrayRegion array start len buf = throwIfJNull array $ \
+set##name##ArrayRegion :: J##name##Array -> Int32 -> Int32 -> Ptr hs_argtype -> IO (); \
+set##name##ArrayRegion array start len buf = throwIfJNull array $ \
     withJNIEnv $ \env -> \
     throwIfException env $ \
     [CU.exp| void { \
-      (*$(JNIEnv *env))->Set####name####ArrayRegion($(JNIEnv *env), \
-                                                    $fptr-ptr:(c_argtype####Array array), \
+      (*$(JNIEnv *env))->Set##name##ArrayRegion($(JNIEnv *env), \
+                                                    $fptr-ptr:(c_argtype##Array array), \
                                                     $(jsize start), \
                                                     $(jsize len), \
                                                     $(c_argtype *buf)) } |]
@@ -957,11 +955,11 @@ SET_ARRAY_REGION(Float, Float, jfloat)
 SET_ARRAY_REGION(Double, Double, jdouble)
 
 #define RELEASE_ARRAY_ELEMENTS(name, hs_argtype, c_argtype) \
-release####name####ArrayElements :: J####name####Array -> Ptr hs_argtype -> IO (); \
-release####name####ArrayElements (upcast -> array) xs = throwIfJNull array $ \
+release##name##ArrayElements :: J##name##Array -> Ptr hs_argtype -> IO (); \
+release##name##ArrayElements (upcast -> array) xs = throwIfJNull array $ \
     withJNIEnv $ \env -> \
     [CU.exp| void { \
-      (*$(JNIEnv *env))->Release####name####ArrayElements($(JNIEnv *env), \
+      (*$(JNIEnv *env))->Release##name##ArrayElements($(JNIEnv *env), \
                                                           $fptr-ptr:(jobject array), \
                                                           $(c_argtype *xs), \
                                                           JNI_ABORT) } |]
