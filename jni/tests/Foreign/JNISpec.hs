@@ -76,5 +76,12 @@ spec = do
           let sig = methodSignature [] (sing :: Sing 'Void)
           result <- try $ Internal.getMethodID kinteger (fromChars "toString") sig
           case result of
-            Left (e :: JVMException) -> showException e `shouldReturn` "java.lang.NoSuchMethodError: toString\n"
+            Left (e :: JVMException) -> do
+              exStr <- showException e
+              exStr `shouldSatisfy`
+                (`elem`
+                 [ "java.lang.NoSuchMethodError: toString\n"
+                 , "java.lang.NoSuchMethodError: Ljava/lang/Integer;.toString()V\n"
+                 ]
+                )
             _ -> expectationFailure "call should have failed with a JVMException"
