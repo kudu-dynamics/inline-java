@@ -1,15 +1,10 @@
 {-# LANGUAGE LambdaCase #-}
 
--- from new way
--- import Distribution.Simple.Setup
--- import Distribution.Verbosity
-import qualified Crypto.Hash.SHA256 as SHA256
-import qualified Data.ByteString.Lazy as BL
--- import Control.Monad (unless)
--- import Data.Char (isSpace)
--- import Data.Functor ((<&>))
--- import Data.List (dropWhileEnd, union)
--- import Data.Maybe (fromJust, isJust)
+import Control.Monad (unless)
+import Data.Char (isSpace)
+import Data.Functor ((<&>))
+import Data.List (dropWhileEnd, union)
+import Data.Maybe (fromJust, isJust)
 
 import Distribution.Simple
 import Distribution.System (Arch (..), OS (..), buildArch, buildOS)
@@ -104,23 +99,43 @@ getJvmConf javaHome = do
     False -> error $ "libjvm doesn't exist at expected path " <> expectedPath <> ". Cannot continue"
   pure (includes, [javaHomeServer])
 
+addJvmConf :: LocalBuildInfo -> IO LocalBuildInfo
+addJvmConf lbi = do
+  javaHome <- getJavaHome
+  unless (isJust javaHome) $
+    error "Could not find a suitable JVM. Try setting JAVA_HOME"
+  (jvmIncludeDirs, jvmLibDirs) <- getJvmConf (fromJust javaHome)
+  let
+    localPkgDescr_ = localPkgDescr lbi
+    mLibrary_ = library localPkgDescr_
+  case mLibrary_ of
+    Nothing -> pure lbi
+    Just library_ ->
+      let
+        libBuildInfo_ = libBuildInfo library_
+        lbi' =
+          lbi
+            { localPkgDescr =
+                localPkgDescr_
+                  { library =
+                      Just
+                        library_
+                          { libBuildInfo =
+                              libBuildInfo_
+                                { includeDirs = includeDirs libBuildInfo_ `union` jvmIncludeDirs
+                                , extraLibDirs = extraLibDirs libBuildInfo_ `union` jvmLibDirs
+                                }
+                          }
+                  }
+            }
+       in
+        pure lbi'
+
 main :: IO ()
-main = defaultMainWithHooks simpleUserHooks
-  { preConf = \args flags -> do
-      mJavaHome <- getJavaHome
-      unless (isJust javaHome) $
-        error "Could not find a suitable JVM. Try setting JAVA_HOME"
-      let javaHome = fromJust javaHome
-      (jvmIncludeDirs, jvmLibDirs) <- getJvmConf javaHome
-      -- a tiny digest so JDK *contents* influence the package hash
-      digest <- take 8 . show . SHA256.hashlazy <$> BL.readFile (javaHome </> "release")
-      let tag = "-DJDK_DIGEST=" ++ digest
-      (hooked, pd) <- confHook simpleUserHooks (genericPackageDescription flags)
-                        ((), emptyHookedBuildInfo)
-      let bi = emptyBuildInfo
-               { extraLibDirs     = jvmLibDirs
-               , extraIncludeDirs = jvmIncludeDirs
-               , ccOptions        = [tag]
-               }
-      pure (Just (pd { library = mapBuildInfo (++ bi) <$> library pd }), hooked)
-  }
+main =
+  defaultMainWithHooks
+    simpleUserHooks
+      { confHook = \args flags -> do
+          lbi <- confHook simpleUserHooks args flags
+          addJvmConf lbi
+      }

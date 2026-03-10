@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.36.0.
+-- This file has been generated from package.yaml by hpack version 0.38.1.
 --
 -- see: https://github.com/sol/hpack
 
@@ -21,12 +21,17 @@ extra-source-files:
 
 custom-setup
   setup-depends:
-      Cabal
-    , Cabal-syntax
+      Cabal >=3.8
+    , Cabal-syntax >=3.8
     , base
     , directory
     , filepath >=1.4.2.2 && <1.6
     , process
+
+flag Cabal-syntax
+  description: Use the Cabal-syntax package for Cabal >= 3.8
+  manual: True
+  default: True
 
 library
   exposed-modules:
@@ -49,8 +54,8 @@ library
   ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -j4 -O2
   extra-libraries:
       jvm
-  build-tools:
-      cpphs
+  build-tool-depends:
+      cpphs:cpphs
   build-depends:
       async
     , base
